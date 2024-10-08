@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+
+  database:
+    container_name: market-database
+    image: mysql:latest
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: $DB_NAME
+      MYSQL_ROOT_PASSWORD: $DB_PASSWORD
+    ports: 
+      - $DB_HOST_PORT:$DB_PORT
+    volumes:
+      - data:/var/lib/mysql
+    networks:
+      - net
+
+  service:
+    container_name: market-service
+    image: qianyingluo/pcmarket-service:0.2.7
+    restart: unless-stopped
+    ports:
+      - $SERVER_HOST_PORT:$SERVER_PORT
+    environment:
+      - DB_HOST=$DB_HOST
+      - DB_USER=$DB_USER
+      - DB_NAME=$DB_NAME
+      - DB_PORT=$DB_PORT
+      - DB_PASSWORD=$DB_PASSWORD
+      - SECRET_KEY=$SECRET_KEY
+      - ALGORITHM=$ALGORITHM
+      - ACCESS_TOKEN_EXPIRE_MINUTES=$ACCESS_TOKEN_EXPIRE_MINUTES
+      - NUMBER_TOP_PRODUCTS=$NUMBER_TOP_PRODUCTS
+      - STRIPE_SECRET_KEY=$STRIPE_SECRET_KEY
+      - STRIPE_PUBLIC_KEY=$STRIPE_PUBLIC_KEY
+    networks:
+      - net
+    depends_on:
+      - database
+
+
+networks:
+  net:
+    external: false
+
+volumes:
+  data:
